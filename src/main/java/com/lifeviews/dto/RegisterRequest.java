@@ -21,4 +21,10 @@ public class RegisterRequest {
 
     @Size(max = 50, message = "nickname length cannot exceed 50")
     private String nickname;
+
+    @Size(max = 512, message = "avatarUrl length cannot exceed 512")
+    private String avatarUrl;
+
+    @Size(max = 32, message = "phone length cannot exceed 32")
+    private String phone;
 }
