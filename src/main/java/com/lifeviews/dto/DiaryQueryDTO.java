@@ -23,10 +23,27 @@ public class DiaryQueryDTO {
     @Max(value = 1, message = "status must be 0 or 1")
     private Integer status;
 
+    @Min(value = 1, message = "page must be at least 1")
+    private Long page;
+
     @Min(value = 1, message = "pageNum must be at least 1")
-    private Long pageNum = 1L;
+    private Long pageNum;
 
     @Min(value = 1, message = "pageSize must be at least 1")
     @Max(value = 100, message = "pageSize cannot exceed 100")
-    private Long pageSize = 10L;
+    private Long pageSize;
+
+    public Long getPageNum() {
+        if (pageNum != null) {
+            return pageNum;
+        }
+        if (page != null) {
+            return page;
+        }
+        return 1L;
+    }
+
+    public Long getPageSize() {
+        return pageSize == null ? 10L : pageSize;
+    }
 }

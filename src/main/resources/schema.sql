@@ -35,6 +35,7 @@ CREATE TABLE diary_record (
                               content TEXT DEFAULT NULL COMMENT '日记正文',
 
                               diary_date DATE NOT NULL COMMENT '日记日期',
+                              diary_time TIME DEFAULT NULL COMMENT '日记时间',
 
                               mood TINYINT DEFAULT NULL COMMENT '心情评分：1-5',
                               mood_text VARCHAR(64) DEFAULT NULL COMMENT '心情文字，如开心、平静、焦虑',

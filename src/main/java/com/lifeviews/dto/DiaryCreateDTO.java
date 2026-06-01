@@ -9,6 +9,7 @@ import jakarta.validation.constraints.Size;
 import lombok.Data;
 
 import java.time.LocalDate;
+import java.time.LocalTime;
 import java.util.List;
 
 @Data
@@ -23,6 +24,8 @@ public class DiaryCreateDTO {
     @NotNull(message = "diaryDate cannot be null")
     private LocalDate diaryDate;
 
+    private LocalTime diaryTime;
+
     @Min(value = 1, message = "mood must be between 1 and 5")
     @Max(value = 5, message = "mood must be between 1 and 5")
     private Integer mood;
@@ -33,12 +36,10 @@ public class DiaryCreateDTO {
     @Size(max = 64, message = "weather length cannot exceed 64")
     private String weather;
 
-    @NotNull(message = "isPinned cannot be null")
     @Min(value = 0, message = "isPinned must be 0 or 1")
     @Max(value = 1, message = "isPinned must be 0 or 1")
     private Integer isPinned;
 
-    @NotNull(message = "status cannot be null")
     @Min(value = 0, message = "status must be 0 or 1")
     @Max(value = 1, message = "status must be 0 or 1")
     private Integer status;

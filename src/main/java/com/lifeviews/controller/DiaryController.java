@@ -1,6 +1,5 @@
 package com.lifeviews.controller;
 
-import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.lifeviews.common.Result;
 import com.lifeviews.common.UserContext;
 import com.lifeviews.dto.DiaryCreateDTO;
@@ -8,7 +7,7 @@ import com.lifeviews.dto.DiaryQueryDTO;
 import com.lifeviews.dto.DiaryUpdateDTO;
 import com.lifeviews.service.DiaryService;
 import com.lifeviews.vo.DiaryDetailVO;
-import com.lifeviews.vo.DiaryListVO;
+import com.lifeviews.vo.DiaryPageVO;
 import com.lifeviews.vo.DiaryUploadVO;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotNull;
@@ -36,8 +35,13 @@ public class DiaryController {
         this.diaryService = diaryService;
     }
 
+    @GetMapping
+    public Result<DiaryPageVO> list(@Valid @ModelAttribute DiaryQueryDTO query) {
+        return Result.success(diaryService.list(UserContext.getCurrentUserId(), query));
+    }
+
     @GetMapping("/list")
-    public Result<Page<DiaryListVO>> list(@Valid @ModelAttribute DiaryQueryDTO query) {
+    public Result<DiaryPageVO> listCompat(@Valid @ModelAttribute DiaryQueryDTO query) {
         return Result.success(diaryService.list(UserContext.getCurrentUserId(), query));
     }
 

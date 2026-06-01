@@ -5,6 +5,7 @@ import lombok.Data;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.LocalTime;
 import java.util.List;
 
 @Data
@@ -17,6 +18,9 @@ public class DiaryDetailVO {
     private String content;
 
     private LocalDate diaryDate;
+
+    @JsonFormat(pattern = "HH:mm")
+    private LocalTime diaryTime;
 
     private Integer mood;
 

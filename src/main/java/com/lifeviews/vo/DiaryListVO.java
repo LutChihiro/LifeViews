@@ -5,6 +5,7 @@ import lombok.Data;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.LocalTime;
 import java.util.List;
 
 @Data
@@ -16,7 +17,12 @@ public class DiaryListVO {
 
     private String contentSummary;
 
+    private String content;
+
     private LocalDate diaryDate;
+
+    @JsonFormat(pattern = "HH:mm")
+    private LocalTime diaryTime;
 
     private Integer mood;
 
@@ -29,6 +35,9 @@ public class DiaryListVO {
     private Integer wordCount;
 
     private Integer status;
+
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
+    private LocalDateTime createdAt;
 
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     private LocalDateTime updatedAt;

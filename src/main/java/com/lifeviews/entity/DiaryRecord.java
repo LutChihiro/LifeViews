@@ -7,6 +7,7 @@ import lombok.Data;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.LocalTime;
 
 @Data
 @TableName("diary_record")
@@ -22,6 +23,8 @@ public class DiaryRecord {
     private String content;
 
     private LocalDate diaryDate;
+
+    private LocalTime diaryTime;
 
     private Integer mood;
 

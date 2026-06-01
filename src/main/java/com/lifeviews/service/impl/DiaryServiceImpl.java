@@ -16,6 +16,7 @@ import com.lifeviews.utils.FileStorageUtil;
 import com.lifeviews.vo.DiaryDetailVO;
 import com.lifeviews.vo.DiaryImageVO;
 import com.lifeviews.vo.DiaryListVO;
+import com.lifeviews.vo.DiaryPageVO;
 import com.lifeviews.vo.DiaryUploadVO;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -33,10 +34,10 @@ import java.util.stream.Collectors;
 public class DiaryServiceImpl implements DiaryService {
 
     private static final int DEFAULT_MOOD = 5;
-    private static final String DEFAULT_MOOD_TEXT = "开心";
     private static final int STATUS_DRAFT = 0;
     private static final int STATUS_NORMAL = 1;
     private static final int STATUS_DELETED = 2;
+    private static final int DEFAULT_PINNED = 0;
 
     private final DiaryRecordMapper diaryRecordMapper;
     private final DiaryImageMapper diaryImageMapper;
@@ -51,7 +52,7 @@ public class DiaryServiceImpl implements DiaryService {
     }
 
     @Override
-    public Page<DiaryListVO> list(Long userId, DiaryQueryDTO query) {
+    public DiaryPageVO list(Long userId, DiaryQueryDTO query) {
         Page<DiaryRecord> page = new Page<>(query.getPageNum(), query.getPageSize());
         LambdaQueryWrapper<DiaryRecord> wrapper = new LambdaQueryWrapper<DiaryRecord>()
                 .eq(DiaryRecord::getUserId, userId)
@@ -86,9 +87,9 @@ public class DiaryServiceImpl implements DiaryService {
                 .map(DiaryRecord::getId)
                 .toList());
 
-        Page<DiaryListVO> result = new Page<>(recordPage.getCurrent(), recordPage.getSize(), recordPage.getTotal());
-        result.setPages(recordPage.getPages());
-        result.setRecords(records.stream()
+        DiaryPageVO result = new DiaryPageVO();
+        result.setTotal(recordPage.getTotal());
+        result.setItems(records.stream()
                 .map(record -> toListVO(record, imageMap.getOrDefault(record.getId(), Collections.emptyList())))
                 .toList());
         return result;
@@ -178,11 +179,12 @@ public class DiaryServiceImpl implements DiaryService {
         record.setTitle(request.getTitle().trim());
         record.setContent(StringUtils.hasText(request.getContent()) ? request.getContent() : null);
         record.setDiaryDate(request.getDiaryDate());
+        record.setDiaryTime(request.getDiaryTime());
         record.setMood(request.getMood() == null ? DEFAULT_MOOD : request.getMood());
-        record.setMoodText(StringUtils.hasText(request.getMoodText()) ? request.getMoodText().trim() : DEFAULT_MOOD_TEXT);
+        record.setMoodText(toMoodText(record.getMood()));
         record.setWeather(toNullable(request.getWeather()));
-        record.setIsPinned(request.getIsPinned());
-        record.setStatus(request.getStatus());
+        record.setIsPinned(request.getIsPinned() == null ? DEFAULT_PINNED : request.getIsPinned());
+        record.setStatus(request.getStatus() == null ? STATUS_DRAFT : request.getStatus());
         record.setWordCount(countWords(request.getContent()));
     }
 
@@ -194,6 +196,7 @@ public class DiaryServiceImpl implements DiaryService {
                 .set(DiaryRecord::getTitle, record.getTitle())
                 .set(DiaryRecord::getContent, record.getContent())
                 .set(DiaryRecord::getDiaryDate, record.getDiaryDate())
+                .set(DiaryRecord::getDiaryTime, record.getDiaryTime())
                 .set(DiaryRecord::getMood, record.getMood())
                 .set(DiaryRecord::getMoodText, record.getMoodText())
                 .set(DiaryRecord::getWeather, record.getWeather())
@@ -247,7 +250,6 @@ public class DiaryServiceImpl implements DiaryService {
                 .stream()
                 .collect(Collectors.groupingBy(DiaryImage::getDiaryId,
                         Collectors.collectingAndThen(Collectors.toList(), images -> images.stream()
-                                .limit(3)
                                 .map(this::toImageVO)
                                 .toList())));
     }
@@ -268,13 +270,16 @@ public class DiaryServiceImpl implements DiaryService {
         vo.setId(record.getId());
         vo.setTitle(record.getTitle());
         vo.setContentSummary(summary(record.getContent()));
+        vo.setContent(record.getContent());
         vo.setDiaryDate(record.getDiaryDate());
+        vo.setDiaryTime(record.getDiaryTime());
         vo.setMood(record.getMood());
         vo.setMoodText(record.getMoodText());
         vo.setWeather(record.getWeather());
         vo.setIsPinned(record.getIsPinned());
         vo.setWordCount(record.getWordCount());
         vo.setStatus(record.getStatus());
+        vo.setCreatedAt(record.getCreatedAt());
         vo.setUpdatedAt(record.getUpdatedAt());
         vo.setImages(images);
         return vo;
@@ -286,6 +291,7 @@ public class DiaryServiceImpl implements DiaryService {
         vo.setTitle(record.getTitle());
         vo.setContent(record.getContent());
         vo.setDiaryDate(record.getDiaryDate());
+        vo.setDiaryTime(record.getDiaryTime());
         vo.setMood(record.getMood());
         vo.setMoodText(record.getMoodText());
         vo.setWeather(record.getWeather());
@@ -321,5 +327,19 @@ public class DiaryServiceImpl implements DiaryService {
 
     private String toNullable(String value) {
         return StringUtils.hasText(value) ? value.trim() : null;
+    }
+
+    private String toMoodText(Integer mood) {
+        if (mood == null) {
+            return "愉快";
+        }
+        return switch (mood) {
+            case 5 -> "愉快";
+            case 4 -> "平静";
+            case 3 -> "普通";
+            case 2 -> "烦闷";
+            case 1 -> "伤心";
+            default -> "愉快";
+        };
     }
 }

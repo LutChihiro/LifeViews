@@ -18,6 +18,7 @@ public class FileStorageUtil {
 
     private static final long MAX_IMAGE_SIZE = 5 * 1024 * 1024;
     private static final Set<String> ALLOWED_EXTENSIONS = Set.of("jpg", "jpeg", "png", "webp");
+    private static final Set<String> ALLOWED_CONTENT_TYPES = Set.of("image/jpeg", "image/png", "image/webp");
     private static final Path DIARY_UPLOAD_DIR = Paths.get("uploads", "diary");
 
     public DiaryUploadVO storeDiaryImage(MultipartFile file) {
@@ -26,6 +27,9 @@ public class FileStorageUtil {
         }
         if (file.getSize() > MAX_IMAGE_SIZE) {
             throw new IllegalArgumentException("image size cannot exceed 5MB");
+        }
+        if (!ALLOWED_CONTENT_TYPES.contains(file.getContentType())) {
+            throw new IllegalArgumentException("only jpg, jpeg, png and webp images are allowed");
         }
 
         String originalFilename = StringUtils.cleanPath(file.getOriginalFilename() == null ? "" : file.getOriginalFilename());
