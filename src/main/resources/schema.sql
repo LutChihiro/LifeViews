@@ -26,7 +26,7 @@ CREATE TABLE IF NOT EXISTS sys_user (
     KEY idx_created_at (created_at)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='用户表';
 
-CREATE TABLE diary_record (
+CREATE TABLE IF NOT EXISTS diary_record (
                               id BIGINT PRIMARY KEY AUTO_INCREMENT COMMENT '日记ID',
 
                               user_id BIGINT NOT NULL COMMENT '用户ID',
@@ -50,6 +50,8 @@ CREATE TABLE diary_record (
 
                               created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
                               updated_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
+                              deleted TINYINT NOT NULL DEFAULT 0 COMMENT '逻辑删除：0未删除，1已删除',
+                              deleted_at DATETIME DEFAULT NULL COMMENT '删除时间',
 
                               UNIQUE KEY uk_user_diary_date (user_id, diary_date),
                               KEY idx_user_id (user_id),
@@ -62,7 +64,7 @@ CREATE TABLE diary_record (
                                       ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='日记表';
 
-CREATE TABLE diary_image (
+CREATE TABLE IF NOT EXISTS diary_image (
                              id BIGINT PRIMARY KEY AUTO_INCREMENT COMMENT '日记图片ID',
 
                              diary_id BIGINT NOT NULL COMMENT '日记ID',

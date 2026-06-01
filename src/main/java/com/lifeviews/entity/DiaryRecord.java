@@ -41,4 +41,8 @@ public class DiaryRecord {
     private LocalDateTime createdAt;
 
     private LocalDateTime updatedAt;
+
+    private Integer deleted;
+
+    private LocalDateTime deletedAt;
 }

@@ -38,6 +38,8 @@ public class DiaryServiceImpl implements DiaryService {
     private static final int STATUS_NORMAL = 1;
     private static final int STATUS_DELETED = 2;
     private static final int DEFAULT_PINNED = 0;
+    private static final int NOT_DELETED = 0;
+    private static final int DELETED = 1;
 
     private final DiaryRecordMapper diaryRecordMapper;
     private final DiaryImageMapper diaryImageMapper;
@@ -56,6 +58,7 @@ public class DiaryServiceImpl implements DiaryService {
         Page<DiaryRecord> page = new Page<>(query.getPageNum(), query.getPageSize());
         LambdaQueryWrapper<DiaryRecord> wrapper = new LambdaQueryWrapper<DiaryRecord>()
                 .eq(DiaryRecord::getUserId, userId)
+                .eq(DiaryRecord::getDeleted, NOT_DELETED)
                 .orderByDesc(DiaryRecord::getIsPinned)
                 .orderByDesc(DiaryRecord::getDiaryDate)
                 .orderByDesc(DiaryRecord::getUpdatedAt);
@@ -112,6 +115,7 @@ public class DiaryServiceImpl implements DiaryService {
         record.setUserId(userId);
         record.setCreatedAt(now);
         record.setUpdatedAt(now);
+        record.setDeleted(NOT_DELETED);
         diaryRecordMapper.insert(record);
 
         replaceImages(userId, record.getId(), request.getImages());
@@ -138,8 +142,9 @@ public class DiaryServiceImpl implements DiaryService {
         int rows = diaryRecordMapper.update(null, new LambdaUpdateWrapper<DiaryRecord>()
                 .eq(DiaryRecord::getId, id)
                 .eq(DiaryRecord::getUserId, userId)
-                .ne(DiaryRecord::getStatus, STATUS_DELETED)
-                .set(DiaryRecord::getStatus, STATUS_DELETED)
+                .eq(DiaryRecord::getDeleted, NOT_DELETED)
+                .set(DiaryRecord::getDeleted, DELETED)
+                .set(DiaryRecord::getDeletedAt, LocalDateTime.now())
                 .set(DiaryRecord::getUpdatedAt, LocalDateTime.now()));
         if (rows == 0) {
             throw new IllegalArgumentException("diary does not exist");
@@ -155,6 +160,7 @@ public class DiaryServiceImpl implements DiaryService {
         DiaryRecord record = diaryRecordMapper.selectOne(new LambdaQueryWrapper<DiaryRecord>()
                 .eq(DiaryRecord::getId, id)
                 .eq(DiaryRecord::getUserId, userId)
+                .eq(DiaryRecord::getDeleted, NOT_DELETED)
                 .ne(DiaryRecord::getStatus, STATUS_DELETED));
         if (record == null) {
             throw new IllegalArgumentException("diary does not exist");
@@ -166,6 +172,7 @@ public class DiaryServiceImpl implements DiaryService {
         LambdaQueryWrapper<DiaryRecord> wrapper = new LambdaQueryWrapper<DiaryRecord>()
                 .eq(DiaryRecord::getUserId, userId)
                 .eq(DiaryRecord::getDiaryDate, request.getDiaryDate())
+                .eq(DiaryRecord::getDeleted, NOT_DELETED)
                 .ne(DiaryRecord::getStatus, STATUS_DELETED);
         if (excludeDiaryId != null) {
             wrapper.ne(DiaryRecord::getId, excludeDiaryId);
@@ -192,6 +199,7 @@ public class DiaryServiceImpl implements DiaryService {
         diaryRecordMapper.update(null, new LambdaUpdateWrapper<DiaryRecord>()
                 .eq(DiaryRecord::getId, record.getId())
                 .eq(DiaryRecord::getUserId, record.getUserId())
+                .eq(DiaryRecord::getDeleted, NOT_DELETED)
                 .ne(DiaryRecord::getStatus, STATUS_DELETED)
                 .set(DiaryRecord::getTitle, record.getTitle())
                 .set(DiaryRecord::getContent, record.getContent())
