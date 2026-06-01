@@ -2,6 +2,7 @@ package com.lifeviews.service.impl;
 
 import com.lifeviews.dto.LoginRequest;
 import com.lifeviews.dto.RegisterRequest;
+import com.lifeviews.dto.UpdateUserProfileDTO;
 import com.lifeviews.entity.User;
 import com.lifeviews.repository.UserRepository;
 import com.lifeviews.service.UserService;
@@ -79,6 +80,30 @@ public class UserServiceImpl implements UserService {
         return toProfileVO(user);
     }
 
+    @Override
+    public UserProfileVO updateProfile(Long userId, UpdateUserProfileDTO request) {
+        User user = userRepository.findById(userId);
+        if (user == null) {
+            throw new IllegalArgumentException("user does not exist");
+        }
+
+        String email = toNullable(request.getEmail());
+        String phone = toNullable(request.getPhone());
+        if (StringUtils.hasText(email) && userRepository.existsByEmailAndIdNot(email, userId)) {
+            throw new IllegalArgumentException("email already exists");
+        }
+        if (StringUtils.hasText(phone) && userRepository.existsByPhoneAndIdNot(phone, userId)) {
+            throw new IllegalArgumentException("phone already exists");
+        }
+
+        user.setNickname(request.getNickname().trim());
+        user.setEmail(email);
+        user.setPhone(phone);
+        user.setAvatarUrl(toNullable(request.getAvatarUrl()));
+        userRepository.updateProfile(user);
+        return toProfileVO(userRepository.findById(userId));
+    }
+
     private String toNullable(String value) {
         return StringUtils.hasText(value) ? value : null;
     }
@@ -93,7 +118,6 @@ public class UserServiceImpl implements UserService {
         vo.setAvatarUrl(user.getAvatarUrl());
         vo.setStatus(user.getStatus());
         vo.setLastLoginTime(user.getLastLoginTime());
-        vo.setCreatedAt(user.getCreatedAt());
         return vo;
     }
 }

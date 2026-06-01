@@ -1,5 +1,6 @@
 package com.lifeviews.vo;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.Data;
 
 import java.time.LocalDateTime;
@@ -21,7 +22,6 @@ public class UserProfileVO {
 
     private Integer status;
 
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     private LocalDateTime lastLoginTime;
-
-    private LocalDateTime createdAt;
 }
