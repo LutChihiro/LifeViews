@@ -2,6 +2,7 @@ package com.lifeviews.service.impl;
 
 import com.lifeviews.dto.LoginRequest;
 import com.lifeviews.dto.RegisterRequest;
+import com.lifeviews.dto.UpdatePasswordDTO;
 import com.lifeviews.dto.UpdateUserProfileDTO;
 import com.lifeviews.entity.User;
 import com.lifeviews.repository.UserRepository;
@@ -102,6 +103,25 @@ public class UserServiceImpl implements UserService {
         user.setAvatarUrl(toNullable(request.getAvatarUrl()));
         userRepository.updateProfile(user);
         return toProfileVO(userRepository.findById(userId));
+    }
+
+    @Override
+    public void updatePassword(Long userId, UpdatePasswordDTO request) {
+        User user = userRepository.findActiveById(userId);
+        if (user == null) {
+            throw new IllegalArgumentException("user does not exist or is disabled");
+        }
+        if (!passwordEncoder.matches(request.getOldPassword(), user.getPassword())) {
+            throw new IllegalArgumentException("oldPassword is incorrect");
+        }
+        if (!request.getNewPassword().equals(request.getConfirmPassword())) {
+            throw new IllegalArgumentException("newPassword and confirmPassword do not match");
+        }
+        if (passwordEncoder.matches(request.getNewPassword(), user.getPassword())) {
+            throw new IllegalArgumentException("newPassword cannot be the same as oldPassword");
+        }
+
+        userRepository.updatePassword(userId, passwordEncoder.encode(request.getNewPassword()));
     }
 
     private String toNullable(String value) {

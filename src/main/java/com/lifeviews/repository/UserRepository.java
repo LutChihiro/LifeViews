@@ -21,6 +21,13 @@ public class UserRepository {
         return userMapper.selectById(id);
     }
 
+    public User findActiveById(Long id) {
+        return userMapper.selectOne(new LambdaQueryWrapper<User>()
+                .eq(User::getId, id)
+                .eq(User::getStatus, 1)
+                .eq(User::getDeleted, 0));
+    }
+
     public User findByUsername(String username) {
         return userMapper.selectOne(new LambdaQueryWrapper<User>()
                 .eq(User::getUsername, username));
@@ -73,5 +80,14 @@ public class UserRepository {
                 .set(User::getPhone, user.getPhone())
                 .set(User::getAvatarUrl, user.getAvatarUrl())
                 .set(User::getUpdatedAt, now));
+    }
+
+    public void updatePassword(Long userId, String password) {
+        userMapper.update(null, new LambdaUpdateWrapper<User>()
+                .eq(User::getId, userId)
+                .eq(User::getStatus, 1)
+                .eq(User::getDeleted, 0)
+                .set(User::getPassword, password)
+                .set(User::getUpdatedAt, LocalDateTime.now()));
     }
 }

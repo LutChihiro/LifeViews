@@ -2,6 +2,7 @@ package com.lifeviews.controller;
 
 import com.lifeviews.common.Result;
 import com.lifeviews.common.UserContext;
+import com.lifeviews.dto.UpdatePasswordDTO;
 import com.lifeviews.dto.UpdateUserProfileDTO;
 import com.lifeviews.service.UserService;
 import com.lifeviews.vo.UserProfileVO;
@@ -30,5 +31,11 @@ public class UserController {
     @PutMapping("/profile")
     public Result<UserProfileVO> updateProfile(@Valid @RequestBody UpdateUserProfileDTO request) {
         return Result.success(userService.updateProfile(UserContext.getCurrentUserId(), request));
+    }
+
+    @PutMapping("/password")
+    public Result<Void> updatePassword(@Valid @RequestBody UpdatePasswordDTO request) {
+        userService.updatePassword(UserContext.getCurrentUserId(), request);
+        return new Result<>(200, "密码修改成功", null);
     }
 }
