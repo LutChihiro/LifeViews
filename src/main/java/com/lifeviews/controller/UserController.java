@@ -2,7 +2,7 @@ package com.lifeviews.controller;
 
 import com.lifeviews.common.Result;
 import com.lifeviews.common.UserContext;
-import com.lifeviews.dto.UpdatePasswordDTO;
+import com.lifeviews.dto.ChangePasswordDTO;
 import com.lifeviews.dto.UpdateUserProfileDTO;
 import com.lifeviews.service.UserService;
 import com.lifeviews.vo.UserProfileVO;
@@ -34,7 +34,7 @@ public class UserController {
     }
 
     @PutMapping("/password")
-    public Result<Void> updatePassword(@Valid @RequestBody UpdatePasswordDTO request) {
+    public Result<Void> updatePassword(@Valid @RequestBody ChangePasswordDTO request) {
         userService.updatePassword(UserContext.getCurrentUserId(), request);
         return new Result<>(200, "密码修改成功", null);
     }

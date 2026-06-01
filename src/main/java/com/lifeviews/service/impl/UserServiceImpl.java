@@ -2,7 +2,7 @@ package com.lifeviews.service.impl;
 
 import com.lifeviews.dto.LoginRequest;
 import com.lifeviews.dto.RegisterRequest;
-import com.lifeviews.dto.UpdatePasswordDTO;
+import com.lifeviews.dto.ChangePasswordDTO;
 import com.lifeviews.dto.UpdateUserProfileDTO;
 import com.lifeviews.entity.User;
 import com.lifeviews.repository.UserRepository;
@@ -106,19 +106,19 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public void updatePassword(Long userId, UpdatePasswordDTO request) {
+    public void updatePassword(Long userId, ChangePasswordDTO request) {
         User user = userRepository.findActiveById(userId);
         if (user == null) {
             throw new IllegalArgumentException("user does not exist or is disabled");
         }
-        if (!passwordEncoder.matches(request.getOldPassword(), user.getPassword())) {
-            throw new IllegalArgumentException("oldPassword is incorrect");
+        if (!passwordEncoder.matches(request.getCurrentPassword(), user.getPassword())) {
+            throw new IllegalArgumentException("currentPassword is incorrect");
         }
         if (!request.getNewPassword().equals(request.getConfirmPassword())) {
             throw new IllegalArgumentException("newPassword and confirmPassword do not match");
         }
         if (passwordEncoder.matches(request.getNewPassword(), user.getPassword())) {
-            throw new IllegalArgumentException("newPassword cannot be the same as oldPassword");
+            throw new IllegalArgumentException("newPassword cannot be the same as currentPassword");
         }
 
         userRepository.updatePassword(userId, passwordEncoder.encode(request.getNewPassword()));

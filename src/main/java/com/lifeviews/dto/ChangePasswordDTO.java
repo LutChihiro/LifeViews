@@ -5,13 +5,13 @@ import jakarta.validation.constraints.Size;
 import lombok.Data;
 
 @Data
-public class UpdatePasswordDTO {
+public class ChangePasswordDTO {
 
-    @NotBlank(message = "oldPassword cannot be blank")
-    private String oldPassword;
+    @NotBlank(message = "currentPassword cannot be blank")
+    private String currentPassword;
 
     @NotBlank(message = "newPassword cannot be blank")
-    @Size(min = 6, max = 50, message = "newPassword length must be between 6 and 50")
+    @Size(min = 6, message = "newPassword length must be at least 6")
     private String newPassword;
 
     @NotBlank(message = "confirmPassword cannot be blank")
